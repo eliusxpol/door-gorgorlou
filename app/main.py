@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Response, HTTPException
+from fastapi import FastAPI, Request, Response, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
@@ -48,13 +48,14 @@ async def health_check():
 
 @app.get("/webhook")
 async def verify_webhook(
-    hub_mode: str = None,
-    hub_verify_token: str = None,
-    hub_challenge: str = None
+    hub_mode: str = Query("subscribe", description="The mode of the webhook", alias="hub.mode"),
+    hub_verify_token: str = Query(..., description="The verification token", alias="hub.verify_token"),
+    hub_challenge: str = Query(..., description="The challenge to verify the webhook", alias="hub.challenge")
 ):
     """
     Webhook verification endpoint for WhatsApp Business API
     This endpoint is called by WhatsApp to verify the webhook URL
+    Uses Query aliases to handle WhatsApp's dot notation (hub.mode, hub.verify_token, hub.challenge)
     """
     logger.info(f"Webhook verification request received: mode={hub_mode}, token={hub_verify_token}")
     
